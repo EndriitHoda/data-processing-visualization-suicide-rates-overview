@@ -31,84 +31,104 @@ Ky projekt synon të sjellë një kuptim më të thellë të faktorëve që ndik
 
 Ja një shpjegim i secilës pjesë të kodit të përdorur në këtë projekt:
 
-### 1. Importoni Libraritë dhe Fshihni Paralajmërimet
+# Udhëzues për Ngarkimin dhe Inspektimin e të Dhënave
+
+### 1. Importoni Libraritë 
 ```python
 import pandas as pd
 import warnings
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
+```
 
-### 2. Mbledhja e të dhënave, definimi i tipeve të dhënave, kualiteti i të dhënave
+### 2. Ngarkimi dhe Inspektimi i të Dhënave
+- **Përshkrim**: Dataseti ngarkohet duke përdorur Pandas, dhe llojet e të dhënave dhe statistikat përmbledhëse printohen për të kuptuar strukturën fillestare.
+```python
 df = pd.read_csv(r'./master.csv')
-
 print(df.dtypes)
 print(df.describe())
+```
 
-### 3. Riemërimi i kolonave për përdorim më të lehtë
-df=df.rename(columns={'sex':'gender','gdp_per_capita ($)':'gdp_per_capita',' gdp_for_year ($) ':'gdp_for_year', 'HDI for year' : 'hdi_for_year'})
-
-### 4. Modifikimi i tipit të dhënave për kolonën 'gdp_for_year'
+### 3. Modifikimi i Llojeve të të Dhënave
+- **Transformimi**: Kolona `gdp_for_year` përmban presje dhe konvertohet në formatin e plotë.
+```python
 df['gdp_for_year'] = df['gdp_for_year'].str.replace(',', '').astype(int)
+```
 
-### 5. Ndryshimi i dimensionalitetit të daraset
-df = df[['country','year', 'gender', 'age', 'suicides_no','population','suicides/100k pop','gdp_for_year','gdp_per_capita','hdi_for_year']]
+### 4. Reduktimi i Dimensionalitetit
+- **Veprimi**: Zgjidhni një nëngrup kolonash të rëndësishme për analizë.
+```python
+df = df[['country', 'year', 'gender', 'age', 'suicides_no', 'population', 'suicides/100k pop', 'gdp_for_year', 'gdp_per_capita', 'hdi_for_year']]
+```
 
-### 5. Menaxhimi i vlerave null
+### 5. Menaxhimi i Vlerave të Mungesave
+- **Qasja**: Përdorni mbushjen përpara dhe mbrapa për vlerat e mungesave në kolonën `hdi_for_year`.
+```python
 df = df.sort_values(by=['country', 'year'])
-
 df['hdi_for_year'] = df.groupby('country')['hdi_for_year'].transform(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
-
 yearly_mean = df.groupby(['country', 'year'])['hdi_for_year'].mean().reset_index()
-
 yearly_mean['hdi_for_year'] = yearly_mean.groupby('country')['hdi_for_year'].transform(lambda x: x.interpolate(method='linear'))
-
 df = df.merge(yearly_mean, on=['country', 'year'], suffixes=('', '_mean'))
-
 df['hdi_for_year'] = df['hdi_for_year'].combine_first(df['hdi_for_year_mean'])
-
 df = df.drop(columns=['hdi_for_year_mean'])
+```
 
-### 6. Mostrimi i të dhënave (10%)
+### 6. Mostrimi i të Dhënave
+- **Veprimi**: Nxirrni një mostër të rastësishme (10%) të të dhënave për analizë.
+```python
 sampled_data = df.sample(frac=0.1)
 print(sampled_data)
+```
 
-### 7. Validimi i vlerave duplikate, Kontrollimi i kolonave specifike
-duplicates_check=['country','year','gender','age']
-duplicates=df.duplicated(subset=duplicates_check)
-
+### 7. Kontrollimi për Duplikata
+- **Validimi**: Kontrolloni dhe hiqni rreshtat e duplikuar.
+```python
+duplicates_check = ['country', 'year', 'gender', 'age']
+duplicates = df.duplicated(subset=duplicates_check)
 if duplicates.any():
-    print("Duplicates found. Dropping duplicates.")
+    print("U gjetën duplikata. Po i heqim.")
     df = df.drop_duplicates()
-    print("\nCleaned DataFrame:")
+    print("\nDataFrame i pastruar:")
     print(df)
 else:
-    print("No duplicates found. DataFrame remains unchanged.")
-
-### 7. Kontrollimi i tërë dataframe-it për vlera duplikate
+    print("Nuk u gjetën duplikata. DataFrame mbetet i pandryshuar.")
+```
+- **Kontroll i Plotë i DataFrame-it**:
+```python
 duplicates = df.duplicated()
-
 if duplicates.any():
-    print("Duplicates found.")
+    print("U gjetën duplikata.")
 else:
-    print("No duplicates found.")
+    print("Nuk u gjetën duplikata.")
+```
 
-### 8. Transformimi i kolonave specifike
+### 8. Llogaritja e Metrikave të Reja, Transformimi i të dhënave
+- **Transformimet**: Llogaritni kolona të reja për analizë.
+```python
 df['total_suicides'] = df.groupby('year')['suicides_no'].transform('sum')
-
 df['suicides_to_population_ratio'] = df['suicides_no'] / df['population']
+```
 
-### 9. Diskretizimi i përpjestimit të vetëvrasjeve me numrin e popullesisë dhe i gdp në kategori më të përshtatshme
-ratio_bins = [-1, 0, 1e-05, 2e-05, 4e-05, 6e-05, 8e-05, 1e-04]  
-ratio_labels = ['None','Very Low', 'Low', 'Medium', 'High', 'Very High', 'Extreme']
-
+### 9. Diskretizimi i të Dhënave
+- **Qëllimi**: Kategorizoni variablat e vazhdueshme në grupe kuptimplota.
+```python
+ratio_bins = [-1, 0, 1e-05, 2e-05, 4e-05, 6e-05, 8e-05, 1e-04]
+ratio_labels = ['Asnjë', 'Shumë e Ulët', 'E Ulët', 'Mesatare', 'E Lartë', 'Shumë e Lartë', 'Ekstreme']
 df['suicides_to_population_ratio_discretize'] = pd.cut(df['suicides_to_population_ratio'], bins=ratio_bins, labels=ratio_labels)
 
 gdp_bins = [0, 1000, 2000, 3000]
-gdp_labels = ['Low', 'Medium', 'High']
+gdp_labels = ['E Ulët', 'Mesatare', 'E Lartë']
 df['gdp_category'] = pd.cut(df['gdp_per_capita'], bins=gdp_bins, labels=gdp_labels)
+```
 
-### 10. Binarizimi i kolones 'gender'
+### 10. Binarizimi i Kolonës `gender`
+- **Transformimi**: Konvertoni kolonën `gender` në vlera binare.
+```python
 df['gender_encoded'] = df['gender'].map({'male': 1, 'female': 0})
+```
 
-### 11. Ruajtja e transformimeve ne nje file te ri
+### 11. Ruajtja e të Dhënave të Pastruara
+- **Veprimi**: Eksportoni të dhënat e transformuara në një skedar të ri CSV.
+```python
 df.to_csv('cleaned_data.csv', index=False)
+```
