@@ -1,3 +1,16 @@
+# Universiteti i Prishtinës "Hasan Prishtina"
+
+<div align="center">
+  <img src="uni-pr.png" alt="University Logo" title="University Logo" width="200">
+</div>
+
+<div align="center">
+<b>Fakulteti: Fakulteti i Inxhinierisë Elektrike dhe Kompjuterike</b><br>  
+<b>Departamenti: Departamenti i Inxhinierisë Kompjuterike</b>
+</div>
+<br>
+
+
 # Data Processing and Visualization: Suicide Rates Overview (1985-2016)
 
 Ky repository përdoret për qëllime studimore në fushën e Përgatitjes dhe Vizualizimit të të Dhënave, për një analizë të thellë të normave të vetëvrasjeve nga viti 1985 deri në vitin 2016.
