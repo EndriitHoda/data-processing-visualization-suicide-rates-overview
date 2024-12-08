@@ -1,15 +1,24 @@
 # Universiteti i Prishtinës "Hasan Prishtina"
 
 <div align="center">
-  <img src="uni-pr.png" alt="University Logo" title="University Logo" width="200">
+  <img src="Output Images\uni-pr.png" alt="University Logo" title="University Logo" width="200">
 </div>
 
 <div align="center">
 <b>Fakulteti: Fakulteti i Inxhinierisë Elektrike dhe Kompjuterike</b><br>  
 <b>Departamenti: Departamenti i Inxhinierisë Kompjuterike</b>
+<b>Lënda: Përgatitja dhe vizualizimi i të dhënave</b>
 </div>
 <br>
 
+## Pjesëmarrësit në Projekt
+
+**Studentët** që kanë marrë pjesë në këtë projekt janë:
+- Endrit Hoda
+- Lorik Mustafa
+- Meriton Kryeziu
+
+**Profesori**: Mërgim Hoti
 
 # Data Processing and Visualization: Suicide Rates Overview (1985-2016)
 
@@ -29,15 +38,6 @@ Qëllimi i këtij projekti është përgatitja dhe vizualizimi i të dhënave p�
 
 - **Tendencat me kalimin e kohës**: Ndjekja e ndryshimeve në normat e vetëvrasjeve gjatë viteve për të parë modelet ose ndryshimet e mundshme. Ky segmentim sipas shtetit, grupmoshës ose gjeneratës na ndihmon të kuptojmë ndikimin e ndryshimeve shoqërore apo ngjarjeve historike në shëndetin mendor me kalimin e kohës.
 
-## Pjesëmarrësit në Projekt
-
-Studentët që kanë marrë pjesë në këtë projekt janë:
-- Endrit Hoda
-- Lorik Mustafa
-- Meriton Kryeziu
-
-**Profesori**: Mërgim Hoti
-
 Ky projekt synon të sjellë një kuptim më të thellë të faktorëve që ndikojnë në shëndetin mendor globalisht përmes përgatitjes dhe vizualizimit të të dhënave. 
 
 ## Ekzekutimi i Kodit Hap pas Hapi
@@ -46,107 +46,51 @@ Ja një shpjegim i secilës pjesë të kodit të përdorur në këtë projekt:
 
 # Udhëzues për Ngarkimin dhe Inspektimin e të Dhënave
 
-### 1. Importoni Libraritë 
-```python
-import pandas as pd
-import warnings
-
-warnings.simplefilter(action='ignore', category=FutureWarning)
-```
-
-### 2. Ngarkimi dhe Inspektimi i të Dhënave
+### 1. Ngarkimi dhe Inspektimi i të Dhënave
 - **Përshkrim**: Dataseti ngarkohet duke përdorur Pandas, dhe llojet e të dhënave dhe statistikat përmbledhëse printohen për të kuptuar strukturën fillestare.
-```python
-df = pd.read_csv(r'./master.csv')
-print(df.dtypes)
-print(df.describe())
-```
+![Inspektimi_te_dhenave](./Output%20Images/Inspektimi_te_dhenave.png)
 
-### 3. Modifikimi i Llojeve të të Dhënave
+### 2. Modifikimi i Llojeve të të Dhënave
 - **Transformimi**: Kolona `gdp_for_year` përmban presje dhe konvertohet në formatin e plotë.
-```python
-df['gdp_for_year'] = df['gdp_for_year'].str.replace(',', '').astype(int)
-```
+![Modifikimi_te_dhenave](./Output%20Images/Modikimi_te_dhenave.png)
 
-### 4. Reduktimi i Dimensionalitetit
+### 3. Reduktimi i Dimensionalitetit
 - **Veprimi**: Zgjidhni një nëngrup kolonash të rëndësishme për analizë.
 ```python
-df = df[['country', 'year', 'gender', 'age', 'suicides_no', 'population', 'suicides/100k pop', 'gdp_for_year', 'gdp_per_capita', 'hdi_for_year']]
+['country', 'year', 'gender', 'age', 'suicides_no', 'population', 'suicides/100k pop', 'gdp_for_year', 'gdp_per_capita', 'hdi_for_year']
 ```
 
-### 5. Menaxhimi i Vlerave të Mungesave
+### 4. Menaxhimi i Vlerave të Mungesave
 - **Qasja**: Përdorni mbushjen përpara dhe mbrapa për vlerat e mungesave në kolonën `hdi_for_year`.
-```python
-df = df.sort_values(by=['country', 'year'])
-df['hdi_for_year'] = df.groupby('country')['hdi_for_year'].transform(lambda x: x.fillna(method='ffill').fillna(method='bfill'))
-yearly_mean = df.groupby(['country', 'year'])['hdi_for_year'].mean().reset_index()
-yearly_mean['hdi_for_year'] = yearly_mean.groupby('country')['hdi_for_year'].transform(lambda x: x.interpolate(method='linear'))
-df = df.merge(yearly_mean, on=['country', 'year'], suffixes=('', '_mean'))
-df['hdi_for_year'] = df['hdi_for_year'].combine_first(df['hdi_for_year_mean'])
-df = df.drop(columns=['hdi_for_year_mean'])
-```
+![hdi_for_year](./Output%20Images/Hdi_for_year.png)
 
-### 6. Mostrimi i të Dhënave
+### 5. Mostrimi i të Dhënave
 - **Veprimi**: Nxirrni një mostër të rastësishme (10%) të të dhënave për analizë.
-```python
-sampled_data = df.sample(frac=0.1)
-print(sampled_data)
-```
+![Mostrimi_te_dhenave](./Output%20Images/Mostrimi_te_dhenave.png)
 
-### 7. Kontrollimi për Duplikata
+### 6. Kontrollimi për Duplikata
 - **Validimi**: Kontrolloni dhe hiqni rreshtat e duplikuar.
-```python
-duplicates_check = ['country', 'year', 'gender', 'age']
-duplicates = df.duplicated(subset=duplicates_check)
-if duplicates.any():
-    print("U gjetën duplikata. Po i heqim.")
-    df = df.drop_duplicates()
-    print("\nDataFrame i pastruar:")
-    print(df)
-else:
-    print("Nuk u gjetën duplikata. DataFrame mbetet i pandryshuar.")
+```
+Nuk u gjetën duplikata. DataFrame mbetet i pandryshuar.
 ```
 - **Kontroll i Plotë i DataFrame-it**:
-```python
-duplicates = df.duplicated()
-if duplicates.any():
-    print("U gjetën duplikata.")
-else:
-    print("Nuk u gjetën duplikata.")
+```
+Nuk u gjetën duplikata.
 ```
 
-### 8. Llogaritja e Metrikave të Reja, Transformimi i të dhënave
+### 7. Llogaritja e Metrikave të Reja, Transformimi i të dhënave
 - **Transformimet**: Llogaritni kolona të reja për analizë.
-```python
-df['total_suicides'] = df.groupby('year')['suicides_no'].transform('sum')
-df['suicides_to_population_ratio'] = df['suicides_no'] / df['population']
-```
+![Transformimi_te_dhenave](./Output%20Images/Transformimi_kolonave.png)
 
-### 9. Diskretizimi i të Dhënave
+### 8. Diskretizimi i të Dhënave
 - **Qëllimi**: Kategorizoni variablat e vazhdueshme në grupe kuptimplota.
-```python
-ratio_bins = [-1, 0, 1e-05, 2e-05, 4e-05, 6e-05, 8e-05, 1e-04]
-ratio_labels = ['Asnjë', 'Shumë e Ulët', 'E Ulët', 'Mesatare', 'E Lartë', 'Shumë e Lartë', 'Ekstreme']
-df['suicides_to_population_ratio_discretize'] = pd.cut(df['suicides_to_population_ratio'], bins=ratio_bins, labels=ratio_labels)
+![Diskretizmi_te_dhenave](./Output%20Images/Diskretizimi_te_dhenave.png)
 
-gdp_bins = [0, 1000, 2000, 3000]
-gdp_labels = ['E Ulët', 'Mesatare', 'E Lartë']
-df['gdp_category'] = pd.cut(df['gdp_per_capita'], bins=gdp_bins, labels=gdp_labels)
-```
-
-### 10. Binarizimi i Kolonës `gender`
+### 9. Binarizimi i Kolonës `gender`
 - **Transformimi**: Konvertoni kolonën `gender` në vlera binare.
-```python
-df['gender_encoded'] = df['gender'].map({'male': 1, 'female': 0})
-```
+![Binarizmi_te_dhenave](./Output%20Images/Binarizmi_te_dhenave.png)
 
-### 11. Ruajtja e të Dhënave të Pastruara
-- **Veprimi**: Eksportoni të dhënat e transformuara në një skedar të ri CSV.
-```python
-df.to_csv('cleaned_data.csv', index=False)
-```
-
-### 12. Detektimi i outliers
+### 10. Detektimi i outliers
 - **Veprimi**: Detektimi i outliers permes metodes Z-Score duke kalkuluar vleren per kolonat: `"suicides_no", "population", "suicides_to_population_ratio", "gdp_for_year", "gdp_per_capita", "hdi_for_year"` gjejme se jane detektuar gjitesej 221 outliers per keto kolona. 
 ```
 Number of outliers: 221
@@ -165,7 +109,7 @@ Outliers
 27364               Uruguay  1999   male    75+ years           66   
 ```
 
-### 12. Fshirja e outliers pas detektimit
+### 11. Fshirja e outliers pas detektimit
 Pas detektimit të outliers, rreshtat me outliers mund ti largojmë nga dataset-i jonë dhe ndryshimet i ruajm në një filë të ri `cleaned_data_without_outliers.csv`
 ```python
 df = df.drop(outliers.index)
@@ -174,22 +118,22 @@ df.reset_index(drop=True, inplace=True)
 df.to_csv('cleaned_data_without_outliers.csv', index=False)
 ```
 
-### 13. Korrelacioni i shfaqur ne matrice
+### 12. Korrelacioni i shfaqur ne matrice
 Korrelacioni mes koloneve me vlera numerike është shfaqur në formë matricore, në këte matrice shihet korrelacioni i larte mes kolonave të ngjashme (p.sh `hdi_for_year` dhe `gdp_per_capita`, `gdp_for_year` dhe `population`)
 
 ![correlation_matrix](./graphs/correlation_matrix.png)
 
-### 14. Eksplorimi i Relacioneve Multivariante
+### 13. Eksplorimi i Relacioneve Multivariante
 Relacionet multivariante për rastet e vetëvrasjeve dhe popullsisë është shfaqur në forme matricore me pairplot për kolonat: `'gdp_per_capita', 'total_suicides_year', 'suicides/100k pop', 'total_population_year'`
 
 ![multivariate_pairplot](./graphs/multivariate_pairplot.png)
 
-### 15. Shperndarja e popullsise permes histogramit
+### 14. Shperndarja e popullsise permes histogramit
 Për kolonën e popullsisë është shfaqur shpërndarja pas log-transformimit të vlerës së lexuar
 
 ![population_distribution](./graphs/population_distribution.png)
 
-### 16. Shperndarja e rasteve ne baze te grup-moshave
+### 15. Shperndarja e rasteve ne baze te grup-moshave
 Për kolonën e moshës është shfaqur vlera e rasteve të vetëvrasjeve për grup-moshat e lexuara
 
 ![suicides_for_age_group](./graphs/suicides_for_age_group.png)
