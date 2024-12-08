@@ -145,3 +145,51 @@ df['gender_encoded'] = df['gender'].map({'male': 1, 'female': 0})
 ```python
 df.to_csv('cleaned_data.csv', index=False)
 ```
+
+### 12. Detektimi i outliers
+- **Veprimi**: Detektimi i outliers permes metodes Z-Score duke kalkuluar vleren per kolonat: `"suicides_no", "population", "suicides_to_population_ratio", "gdp_for_year", "gdp_per_capita", "hdi_for_year"` gjejme se jane detektuar gjitesej 221 outliers per keto kolona. 
+```
+Number of outliers: 221
+Outliers
+                     country  year gender          age  suicides_no  \
+324     Antigua and Barbuda  1990   male  35-54 years            1   
+360     Antigua and Barbuda  1993   male  25-34 years            1   
+420     Antigua and Barbuda  2000   male  55-74 years            1   
+432     Antigua and Barbuda  2001   male  35-54 years            2   
+456     Antigua and Barbuda  2003   male  55-74 years            1   
+...                     ...   ...    ...          ...          ...   
+26464  United Arab Emirates  2010   male    75+ years            1   
+27232               Uruguay  1986   male    75+ years           38   
+27244               Uruguay  1987   male    75+ years           36   
+27256               Uruguay  1988   male    75+ years           33   
+27364               Uruguay  1999   male    75+ years           66   
+```
+
+### 12. Fshirja e outliers pas detektimit
+Pas detektimit të outliers, rreshtat me outliers mund ti largojmë nga dataset-i jonë dhe ndryshimet i ruajm në një filë të ri `cleaned_data_without_outliers.csv`
+```python
+df = df.drop(outliers.index)
+df.reset_index(drop=True, inplace=True)
+
+df.to_csv('cleaned_data_without_outliers.csv', index=False)
+```
+
+### 13. Korrelacioni i shfaqur ne matrice
+Korrelacioni mes koloneve me vlera numerike është shfaqur në formë matricore, në këte matrice shihet korrelacioni i larte mes kolonave të ngjashme (p.sh `hdi_for_year` dhe `gdp_per_capita`, `gdp_for_year` dhe `population`)
+
+![correlation_matrix](./graphs/correlation_matrix.png)
+
+### 14. Eksplorimi i Relacioneve Multivariante
+Relacionet multivariante për rastet e vetëvrasjeve dhe popullsisë është shfaqur në forme matricore me pairplot për kolonat: `'gdp_per_capita', 'total_suicides_year', 'suicides/100k pop', 'total_population_year'`
+
+![multivariate_pairplot](./graphs/multivariate_pairplot.png)
+
+### 15. Shperndarja e popullsise permes histogramit
+Për kolonën e popullsisë është shfaqur shpërndarja pas log-transformimit të vlerës së lexuar
+
+![population_distribution](./graphs/population_distribution.png)
+
+### 16. Shperndarja e rasteve ne baze te grup-moshave
+Për kolonën e moshës është shfaqur vlera e rasteve të vetëvrasjeve për grup-moshat e lexuara
+
+![suicides_for_age_group](./graphs/suicides_for_age_group.png)
